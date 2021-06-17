@@ -26,16 +26,16 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Calculate topological-temporal predictability (TTP)')
     parser.add_argument('-dp', '--DataPath', required=True, help='Path to the data file (only excel file is accepted), e.g. ./data/CF.xlsx')
-    parser.add_argument('-fn', '--FileName', help='File name to save the result, e.g. ./TTP/CF.txt')
+    parser.add_argument('-fn', '--FileName', required=True, help='File name to save the result, e.g. ./TTP/CF.txt')
+    parser.add_argument('-conv', '--UseConv', default=0, type = int, choices=[0, 1], help='Whether to use Convolution for submatrix matching')
     args = parser.parse_args()
     start_time = time.time()
-    
     for file in os.listdir(args.DataPath):
         if file.endswith(".xlsx"):
             print(file)
             data = load_data(os.path.join(args.DataPath, file))
-            TTP = compute_TTP(data)
-            f = open('./TTP/'+file.replace('.xlsx', '.txt'), "w+")
+            TTP = compute_TTP(data, args.UseConv)
+            f = open('./TTP_calculated/'+args.FileName+'.txt', "w+")
             f.write(str(TTP))
             f.close()
             print('TTP for {} is :{}'.format(file.replace('.xlsx', ''), TTP))
