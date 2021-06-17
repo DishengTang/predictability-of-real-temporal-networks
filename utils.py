@@ -80,7 +80,7 @@ def entropy_rate(p, uniq):
         sys.exit('Incorrect type of p: {}'.format(type(p)))
     return er
 
-def compute_square_predictability(square, cell_ind, cell_len):
+def compute_square_predictability(square, mat_ind, mat_len):
     row, col = square.shape
     summ = 0
     for i in range(1, row):
@@ -94,7 +94,7 @@ def compute_square_predictability(square, cell_ind, cell_len):
                     break
                 elif L == min(i, j):                # max + 1 if max length still submatrix
                     summ += (L + 1) ** 2
-        print('Row {}/{} of spliting cell {}/{} finished'.format(i, row, cell_ind + 1, cell_len))
+        print('Row {}/{} of square matrix {}/{} finished'.format(i, row, mat_ind + 1, mat_len))
     # entropy rate estimated by Lempel-Ziv algorithm
     H = square.size * log2(square.size) / summ
     uniq = len(np.unique(square))
@@ -135,7 +135,7 @@ def compute_TTP(data):
                 if row_norm == 1:
                     pred = square / (row * col * uniq)
                 elif cell_ind == 0:
-                    pred = compute_square_predictability(square, cell_ind, len(all_matrix_cell))                        
+                    pred = compute_square_predictability(square, mat_ind, len(matrix_cell))                        
                     origin_pred.append(pred)
                 else:
                     if square == all_matrix_cell[0][mat_ind]: # find the first split predictability
@@ -157,4 +157,3 @@ def compute_TTP(data):
     else: # no need to split matrix for square data
         predictability = compute_square_predictability(data, 1, 1)
     return predictability
-        
