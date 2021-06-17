@@ -3,7 +3,6 @@ import numpy as np
 from numpy import log2
 import pandas as pd
 import sympy as sp
-# from sympy.solvers import solve
 from sympy import Symbol, nsolve
 import sys
 
@@ -15,11 +14,11 @@ def is_submatrix_elsewhere(submatrix, matrix):
     if matrix.shape[0] >= submatrix.shape[0] and matrix.shape[1] >= submatrix.shape[1]:
         sliding_mat = np.lib.stride_tricks.sliding_window_view(matrix, window_shape=submatrix.shape)
         diff = np.abs(sliding_mat - submatrix[None, None, :, :]).sum(axis=-1).sum(axis=-1)
-        diff[0, -1] = 1 # this position is itself
-        result = np.isin(0, diff)
+        diff[-1, -1] = 1 # this position is itself
+        appeared_before = np.isin(0, diff)
     else:
-        result = False
-    return result
+        appeared_before = False
+    return appeared_before
 
 def split(matrix):
     flag = 1     #flag == 1 means there're still matrixs to split, 0 means none
@@ -92,7 +91,7 @@ def compute_square_predictability(square, cell_ind, cell_len):
                 if not appeared_before:
                     summ += L ** 2
                     break
-                elif L == min(i, j): #max length still submatrix, 1+ max
+                elif L == min(i, j):                # max + 1 if max length still submatrix
                     summ += (L + 1) ** 2
         print('Row {}/{} of spliting cell {}/{} finished'.format(i, row, cell_ind + 1, cell_len))
     # entropy rate estimated by Lempel-Ziv algorithm
@@ -157,4 +156,3 @@ def compute_TTP(data):
     else: # no need to split matrix for square data
         predictability = compute_square_predictability(data, 1, 1)
     return predictability
-        
