@@ -4,6 +4,7 @@ from numpy import log2
 import pandas as pd
 import sympy as sp
 from sympy import Symbol, nsolve
+from scipy import signal
 import sys
 
 def load_data(path):
@@ -11,13 +12,20 @@ def load_data(path):
 
 def is_submatrix_elsewhere(submatrix, matrix):
     # use sliding_window_view to obtain sliding matrix
-    if matrix.shape[0] >= submatrix.shape[0] and matrix.shape[1] >= submatrix.shape[1]:
-        sliding_mat = np.lib.stride_tricks.sliding_window_view(matrix, window_shape=submatrix.shape)
-        diff = np.abs(sliding_mat - submatrix[None, None, :, :]).sum(axis=-1).sum(axis=-1)
-        diff[-1, -1] = 1 # this position is itself
-        appeared_before = np.isin(0, diff)
-    else:
-        appeared_before = False
+    sliding_mat = np.lib.stride_tricks.sliding_window_view(matrix, window_shape=submatrix.shape)
+    diff = np.abs(sliding_mat - submatrix[None, None, :, :]).sum(axis=-1).sum(axis=-1)
+    diff[-1, -1] = 1 # this position is itself
+    appeared_before = np.isin(0, diff)
+    return appeared_before
+
+def is_submatrix_elsewhere_fftconvolve(submatrix, matrix):
+    # use sliding_window_view to obtain sliding matrix
+    rand_filter = np.random.random(submatrix.shape)
+    conv1 = signal.fftconvolve(matrix, rand_filter, mode='valid')
+    conv2 = signal.fftconvolve(submatrix, rand_filter, mode='valid')
+    close = np.isclose(conv1, conv2, rtol=1e-10)
+    close[-1, -1] = False # this position is itself
+    appeared_before = close.any()
     return appeared_before
 
 def split(matrix):
@@ -80,7 +88,7 @@ def entropy_rate(p, uniq):
         sys.exit('Incorrect type of p: {}'.format(type(p)))
     return er
 
-def compute_square_predictability(square, mat_ind, mat_len):
+def compute_square_predictability(square, mat_ind, mat_len, use_conv=False):
     
     row, col = square.shape
     summ = 0
@@ -89,7 +97,10 @@ def compute_square_predictability(square, mat_ind, mat_len):
             for L in range(1, min(i, j) + 1):
                 matrix = square[:i, :j]
                 submatrix = square[i-L:i,j-L:j]     # length L
-                appeared_before = is_submatrix_elsewhere(submatrix, matrix)
+                if use_conv:
+                    appeared_before = is_submatrix_elsewhere_fftconvolve(submatrix, matrix)
+                else:
+                    appeared_before = is_submatrix_elsewhere(submatrix, matrix)
                 if not appeared_before:
                     leng = L ** 2
                     summ += L ** 2
@@ -117,7 +128,7 @@ def compute_square_predictability(square, mat_ind, mat_len):
         predictability = 1 - predictability
     return predictability
 
-def compute_TTP(data):
+def compute_TTP(data, use_conv=False):
     data = np.nan_to_num(data) # replace NaN as 0
     np.random.shuffle(data) # reorder the rows in the matrix
     uniq = len(np.unique(data))
@@ -137,7 +148,7 @@ def compute_TTP(data):
                 if square.size == 1:
                     pred = float(square / uniq) # value of square means number of units
                 elif cell_ind == 0:
-                    pred = compute_square_predictability(square, mat_ind, len(matrix_cell))
+                    pred = compute_square_predictability(square, mat_ind, len(matrix_cell), use_conv)
                     origin_pred.append(pred)
                 else:
                     if (square == all_matrix_cell[0][mat_ind]).all(): # find the first split predictability
