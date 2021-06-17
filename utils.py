@@ -81,18 +81,21 @@ def entropy_rate(p, uniq):
     return er
 
 def compute_square_predictability(square, mat_ind, mat_len):
+    
     row, col = square.shape
     summ = 0
-    for i in range(1, row):
-        for j in range(1, col):
-            for L in range(min(i, j)):
+    for i in range(1, row + 1):
+        for j in range(1, col + 1):
+            for L in range(1, min(i, j) + 1):
                 matrix = square[:i, :j]
                 submatrix = square[i-L:i,j-L:j]     # length L
                 appeared_before = is_submatrix_elsewhere(submatrix, matrix)
                 if not appeared_before:
+                    leng = L ** 2
                     summ += L ** 2
                     break
                 elif L == min(i, j):                # max + 1 if max length still submatrix
+                    leng = (L + 1) ** 2
                     summ += (L + 1) ** 2
         print('Row {}/{} of square matrix {}/{} finished'.format(i, row, mat_ind + 1, mat_len))
     # entropy rate estimated by Lempel-Ziv algorithm
@@ -131,15 +134,14 @@ def compute_TTP(data):
             wavg_pred = 0
             for mat_ind in range(len(matrix_cell)):
                 square = matrix_cell[mat_ind]
-                row_norm,col_norm = square.shape
-                if row_norm == 1:
-                    pred = square / (row * col * uniq)
+                if square.size == 1:
+                    pred = float(square / uniq) # value of square means number of units
                 elif cell_ind == 0:
-                    pred = compute_square_predictability(square, mat_ind, len(matrix_cell))                        
+                    pred = compute_square_predictability(square, mat_ind, len(matrix_cell))
                     origin_pred.append(pred)
                 else:
-                    if square == all_matrix_cell[0][mat_ind]: # find the first split predictability
-                        pred = origin_pred[mat_ind] * square.size / (row * col)  #weighted average by area
+                    if (square == all_matrix_cell[0][mat_ind]).all(): # find the first split predictability
+                        pred = origin_pred[mat_ind]  #weighted average by area
                     else:
                         sys.exit('Sorry! There is some problem with the original split!!!')
                 wavg_pred += pred * square.size / (row * col)  #weighted average by area
