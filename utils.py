@@ -82,6 +82,7 @@ def entropy_rate(p, uniq):
 
 def compute_square_predictability(square, cell_ind, cell_len):
     row, col = square.shape
+    summ = 0
     for i in range(1, row):
         for j in range(1, col):
             for L in range(min(i, j)):
@@ -156,3 +157,4 @@ def compute_TTP(data):
     else: # no need to split matrix for square data
         predictability = compute_square_predictability(data, 1, 1)
     return predictability
+        
