@@ -44,7 +44,7 @@ if __name__ == "__main__":
         data_process.load_data()
         data_process.construct_matrix()
         data_process.filter_links()
-        TTP = compute_TTP(data_process.filtered_matrix, args.UseConv)
+        TTP = compute_TTP(data_process.M_tilde, args.UseConv)
         f = open('./TTP_calculated/'+file.replace('.xlsx', '.txt'), "w+")
         f.write(str(TTP))
         f.close()
