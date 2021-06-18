@@ -20,7 +20,7 @@ class DataProcessor:
 
     def load_data(self):
         print('Loading data...')
-        self.data = pd.read_csv(self.path, sep=r"\s+", header=None)
+        self.data = pd.read_csv(self.path, sep=r',|\s+', header=None, engine='python')
         self.data.columns = self.data_col
         self.data['time'] = pd.to_datetime(self.data['time'], unit='s')
 
@@ -49,6 +49,7 @@ class DataProcessor:
             self.data = self.data[self.data['source'].isin(nodes) & self.data['target'].isin(nodes)].reset_index(drop=True)
         nodes = list(self.G.nodes())
         num_nodes = len(nodes)
+        print('Number of nodes: {}'.format(num_nodes))
         time_span = (self.data['time'].iloc[-1] - self.data['time'].iloc[0]).days
         self.M = np.zeros((len(nodes)**2, time_span + 1))
         for ind, row in self.data.iterrows():
@@ -70,3 +71,4 @@ class DataProcessor:
         else:
             rows_to_keep = np.arange(np.where(activity_portion >= 0.6)[0][0] + 1)
         self.M_tilde = matrix[rows_to_keep, :]
+        print('Shape of M_tilde: {}'.format(self.M_tilde.shape))
