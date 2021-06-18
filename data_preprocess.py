@@ -7,8 +7,8 @@ class DataProcessor:
                 th=10, connected_component=False, filter=True):
         super(DataProcessor, self).__init__()
         self.data = None
-        self.matrix = None
-        self.filtered_matrix = None
+        self.M = None
+        self.M_tilde = None
         self.G = None
         self.path = path
         self.data_col = data_col
@@ -50,15 +50,15 @@ class DataProcessor:
         nodes = list(self.G.nodes())
         num_nodes = len(nodes)
         time_span = (self.data['time'].iloc[-1] - self.data['time'].iloc[0]).days
-        self.matrix = np.zeros((len(nodes)**2, time_span + 1))
+        self.M = np.zeros((len(nodes)**2, time_span + 1))
         for ind, row in self.data.iterrows():
-            self.matrix[nodes.index(row['source'])*num_nodes+nodes.index(row['target']), (row['time'] - self.data['time'].iloc[0]).days] += 1
+            self.M[nodes.index(row['source'])*num_nodes+nodes.index(row['target']), (row['time'] - self.data['time'].iloc[0]).days] += 1
         
     def filter_links(self):
         print('Filtering links...')
-        col = self.matrix.shape[1]
-        num_nonzero = np.count_nonzero(self.matrix)
-        count_matrix = np.hstack((self.matrix, np.count_nonzero(self.matrix, axis=1)[:, None]))
+        col = self.M.shape[1]
+        num_nonzero = np.count_nonzero(self.M)
+        count_matrix = np.hstack((self.M, np.count_nonzero(self.M, axis=1)[:, None]))
         count_matrix = count_matrix[count_matrix[:, -1].argsort()[::-1]]
         matrix = count_matrix[:, :-1]
         # Links with activity rate higher than 0.1
@@ -69,4 +69,4 @@ class DataProcessor:
             rows_to_keep = active_link_ind
         else:
             rows_to_keep = np.arange(np.where(activity_portion >= 0.6)[0][0] + 1)
-        self.filtered_matrix = matrix[rows_to_keep, :]
+        self.M_tilde = matrix[rows_to_keep, :]
