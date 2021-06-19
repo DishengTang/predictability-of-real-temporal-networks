@@ -51,7 +51,7 @@ class DataProcessor:
         num_nodes = len(nodes)
         print('Number of nodes: {}'.format(num_nodes))
         time_span = (self.data['time'].iloc[-1] - self.data['time'].iloc[0]).days
-        self.M = np.zeros((len(nodes)**2, time_span + 1))
+        self.M = np.zeros((num_nodes**2, time_span + 1))
         for ind, row in self.data.iterrows():
             self.M[nodes.index(row['source'])*num_nodes+nodes.index(row['target']), (row['time'] - self.data['time'].iloc[0]).days] += 1
         

@@ -7,11 +7,15 @@ from sympy import Symbol, nsolve
 from scipy import signal
 import sys
 
-def load_data(path):
-    return pd.read_excel(path, header=None, index_col=None).to_numpy()
+def load_mat_data(path):
+    if path.endswith(('.csv', 'excel')):
+        data = pd.read_excel(path, header=None, index_col=None).to_numpy()
+    elif path.endswith('.npy'):
+        data = np.load(path)
+    return data
 
 def is_submatrix_elsewhere(submatrix, matrix):
-    # use sliding_window_view to obtain sliding matrix
+    # Use sliding_window_view to obtain sliding matrix
     sliding_mat = np.lib.stride_tricks.sliding_window_view(matrix, window_shape=submatrix.shape)
     diff = np.abs(sliding_mat - submatrix[None, None, :, :]).sum(axis=-1).sum(axis=-1)
     diff[-1, -1] = 1 # this position is itself
@@ -19,7 +23,7 @@ def is_submatrix_elsewhere(submatrix, matrix):
     return appeared_before
 
 def is_submatrix_elsewhere_fftconvolve(submatrix, matrix):
-    # use sliding_window_view to obtain sliding matrix
+    # Use convolution with random filters to estimate submatrix matching
     rand_filter = np.random.random(submatrix.shape)
     conv1 = signal.fftconvolve(matrix, rand_filter, mode='valid')
     conv2 = signal.fftconvolve(submatrix, rand_filter, mode='valid')
@@ -29,10 +33,10 @@ def is_submatrix_elsewhere_fftconvolve(submatrix, matrix):
     return appeared_before
 
 def split(matrix):
-    flag = 1     #flag == 1 means there're still matrixs to split, 0 means none
+    flag = 1     # flag == 1 means there're still matrixs to split, 0 means none
     matrix_cell = []
     all_matrix_cell = []
-    big_matrix_ind = []    #store the serial number of matrixs bigger than 1
+    big_matrix_ind = []    # store the serial number of matrixs bigger than 1
     row,col = matrix.shape
     row_split,col_split = matrix.shape
     while row_split != col_split:
@@ -55,7 +59,6 @@ def split(matrix):
                cnt += matrix_cell[ind]
             else:
                cnt += 1
-#                matrix_cell{ind} = 1  #make sure subsequent split result is right
         if cnt != row * col:
             sys.exit('Sorry! The split result is wrong!!!')
         #emerge length 1 matrix
@@ -65,9 +68,9 @@ def split(matrix):
             matrix_cell[loc[0] + 1:] = []
         
         all_matrix_cell.append(matrix_cell)
-        if flag == 0:   #there is no need to split
+        if flag == 0:   # there is no need to split
             break
-        #Split the minimum matrix bigger than 1
+        # Split the minimum matrix larger than unit
         temp = matrix_cell[:big_matrix_ind[-1]]
         if matrix_cell[-1].size == 1:
             temp.append(np.array(matrix_cell[-1] + matrix_cell[big_matrix_ind[-1]].size))
@@ -89,7 +92,6 @@ def entropy_rate(p, uniq):
     return er
 
 def compute_square_predictability(square, mat_ind, mat_len, use_conv=False):
-    
     row, col = square.shape
     summ = 0
     for i in range(1, row + 1):
@@ -102,11 +104,9 @@ def compute_square_predictability(square, mat_ind, mat_len, use_conv=False):
                 else:
                     appeared_before = is_submatrix_elsewhere(submatrix, matrix)
                 if not appeared_before:
-                    leng = L ** 2
                     summ += L ** 2
                     break
                 elif L == min(i, j):                # max + 1 if max length still submatrix
-                    leng = (L + 1) ** 2
                     summ += (L + 1) ** 2
         print('Row {}/{} of square matrix {}/{} finished'.format(i, row, mat_ind + 1, mat_len))
     # entropy rate estimated by Lempel-Ziv algorithm
@@ -128,18 +128,18 @@ def compute_square_predictability(square, mat_ind, mat_len, use_conv=False):
         predictability = 1 - predictability
     return predictability
 
-def compute_TTP(data, use_conv=False):
-    data = np.nan_to_num(data) # replace NaN as 0
-    np.random.shuffle(data) # reorder the rows in the matrix
-    uniq = len(np.unique(data))
-    row,col = data.shape
+def compute_TTP(data, use_conv):
+    data_copy = np.nan_to_num(data) # replace NaN as 0
+    np.random.shuffle(data_copy) # reorder the rows in the matrix
+    uniq = len(np.unique(data_copy))
+    row,col = data_copy.shape
     wavg_pred = 0  # weighted average predictability for certain split strategy
     matrix_cell = {}  # certain split strategy
     num_squares_list = [] # number of squares for each split strategy
     wavg_pred_list = [] # weighted average predictability for each split strategy
     origin_pred = [] # original predictability of the first split strategy
     if row != col:
-        all_matrix_cell = split(data)
+        all_matrix_cell = split(data_copy)
         for cell_ind in range(len(all_matrix_cell)):
             matrix_cell = all_matrix_cell[cell_ind]
             wavg_pred = 0
@@ -152,10 +152,10 @@ def compute_TTP(data, use_conv=False):
                     origin_pred.append(pred)
                 else:
                     if (square == all_matrix_cell[0][mat_ind]).all(): # find the first split predictability
-                        pred = origin_pred[mat_ind]  #weighted average by area
+                        pred = origin_pred[mat_ind]  # weighted average by area
                     else:
                         sys.exit('Sorry! There is some problem with the original split!!!')
-                wavg_pred += pred * square.size / (row * col)  #weighted average by area
+                wavg_pred += pred * square.size / (row * col)  # weighted average by area
             if matrix_cell[-1].size == 1:
                 num_squares = int(len(matrix_cell) - 1 + matrix_cell[-1])
             else:
@@ -168,5 +168,21 @@ def compute_TTP(data, use_conv=False):
         fitting = np.polyfit(num_squares_list, wavg_pred_list, 1)
         predictability = fitting[0] + fitting[1]
     else: # no need to split matrix for square data
-        predictability = compute_square_predictability(data, 1, 1)
+        predictability = compute_square_predictability(data_copy, 1, 1)
     return predictability
+
+def compute_predictability(data, normalize, num_norm, use_conv):
+    if normalize:
+        TTP = compute_TTP(data, use_conv)
+        mat_shape = data.shape
+        data_baseline = data.flatten().copy()
+        TTP_baseline = np.zeros(num_norm)
+        for i in range(num_norm):
+            print('{} of {} baseline realizations'.format(i + 1, num_norm))
+            np.random.shuffle(data_baseline)
+            data_baseline = data_baseline.reshape(mat_shape)
+            TTP_baseline[i] = compute_TTP(data_baseline, use_conv)
+        pred = 1 if TTP == TTP_baseline.mean() == 1 else (TTP - TTP_baseline.mean()) / (1 - TTP_baseline.mean())
+    else:
+        pred = compute_TTP(data, use_conv)
+    return pred
