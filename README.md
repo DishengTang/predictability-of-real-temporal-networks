@@ -50,7 +50,10 @@ Normalized Topological-temporal predictability (NTTP):
 python main.py -dp '../raw_data/manufacturingEmails.txt' -l 'source target weight time' -fn ./TTP/'ME'.txt -np 100 -n 1 -nb 100 -conv 1 -dr 1 -fre 0 -cc 0 -ft 1
 ```
 
-#### Note: We prepared bash files for College-Forum, College-Message, Manufacturing-Emails and Reality-Mining datasets in the script folder.
+#### Note: We prepared bash files for College-Forum, College-Message, Manufacturing-Emails and Reality-Mining datasets in the scripts folder, you can use them like this
+```{bash}
+bash CF.sh
+```
 
 
 ## Cite us
