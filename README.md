@@ -19,7 +19,7 @@ Interestingly, we find that, for most real temporal networks, despite the greate
 
 ### Requirements
 
-Dependencies (with python >= 3.7):
+Dependencies:
 
 ```{bash}
 pandas==1.1.0
@@ -30,8 +30,7 @@ networkx==2.5.1
 ### Dataset and Preprocessing
 
 #### Download the public data
-Download the sample datasets (eg. wikipedia and reddit) from
-[here](http://snap.stanford.edu/jodie/) and store their csv files in a folder named
+Download the sample datasets (eg. [College-Forum](http://konect.cc/networks/opsahl-ucforum/), [College-Message](https://snap.stanford.edu/data/CollegeMsg.html), [Reality-Mining](http://konect.cc/networks/mit/) and [Manufacturing-Emails](http://konect.cc/networks/radoslaw_email/)) and store their txt files in a folder named
 ```raw_data/```.
 
 #### Preprocess the data
