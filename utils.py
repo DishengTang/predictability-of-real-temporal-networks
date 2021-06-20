@@ -171,18 +171,25 @@ def compute_TTP(data, use_conv):
         predictability = compute_square_predictability(data_copy, 1, 1)
     return predictability
 
-def compute_predictability(data, normalize, num_norm, use_conv):
+def compute_predictability(data, num_perm, normalize, num_norm, use_conv):
+    TTP = np.zeros(num_perm)
+    for i in range(num_norm):
+        print('{} of {} TTP row permutations'.format(i + 1, num_norm))
+        TTP[i] = compute_TTP(data, use_conv)
     if normalize:
-        TTP = compute_TTP(data, use_conv)
         mat_shape = data.shape
-        data_baseline = data.flatten().copy()
+        data_baseline = data.copy()
         TTP_baseline = np.zeros(num_norm)
         for i in range(num_norm):
             print('{} of {} baseline realizations'.format(i + 1, num_norm))
-            np.random.shuffle(data_baseline)
-            data_baseline = data_baseline.reshape(mat_shape)
+            # data_baseline = data_baseline.flatten()
+            # np.random.shuffle(data_baseline)
+            # data_baseline = data_baseline.reshape(mat_shape)
+            data_baseline = data_baseline.flatten()[np.random.permutation(data_baseline.size)].reshape(mat_shape)
             TTP_baseline[i] = compute_TTP(data_baseline, use_conv)
-        pred = 1 if TTP == TTP_baseline.mean() == 1 else (TTP - TTP_baseline.mean()) / (1 - TTP_baseline.mean())
+        pred = 1 if TTP.max() == TTP_baseline.mean() == 1 else (TTP.max() - TTP_baseline.mean()) / (1 - TTP_baseline.mean())
+        print('TTP: {}\n TTP_baseline: {}'.format(TTP, TTP_baseline))
     else:
-        pred = compute_TTP(data, use_conv)
+        pred = TTP.max()
+        print('TTP: {}'.format(TTP))
     return pred
