@@ -36,9 +36,6 @@ Download the sample datasets (eg. wikipedia and reddit) from
 
 #### Preprocess the data
 We use a 2-dimensional matrix M to represent temporal networks. For large networks, we extract the subgraph of active nodes and then remove the inactive links in M to reduce computational cost. All calculations are performed base on the obtained matrix M_tilde. Check the Methods Section of the paper for details.
-```
-
-
 
 ### Predictability calculation
 
@@ -59,6 +56,7 @@ python main.py -dp '../raw_data/manufacturingEmails.txt' -l 'source target weigh
 
 ## Cite us
 If you use this code as part of any research for publication, please acknowledge the following paper:
+
 [Predictability of Real Temporal Networks](https://doi.org/10.1093/nsr/nwaa015)
 
 ```bibtex
