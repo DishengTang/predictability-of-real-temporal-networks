@@ -32,7 +32,7 @@ networkx==2.5
 ### Dataset and Preprocessing
 
 #### Download the public data
-Download the sample datasets (eg. [College-Forum](http://konect.cc/networks/opsahl-ucforum/), [College-Message](https://snap.stanford.edu/data/CollegeMsg.html), [Reality-Mining](http://konect.cc/networks/mit/) and [Manufacturing-Emails](http://konect.cc/networks/radoslaw_email/)) and store their txt files in a folder named
+Download the sample datasets (e.g. [College-Forum](http://konect.cc/networks/opsahl-ucforum/), [College-Message](https://snap.stanford.edu/data/CollegeMsg.html), [Reality-Mining](http://konect.cc/networks/mit/) and [Manufacturing-Emails](http://konect.cc/networks/radoslaw_email/)) and store their txt files in a folder named
 ```raw_data/```.
 
 #### Preprocess the data
