@@ -2,12 +2,9 @@
 # Tang, D., Du, W., Shekhtman, L., Wang, Y., Havlin, S., Cao, X., & Yan, G. (2020). 
 # Predictability of real temporal networks. National Science Review, 7(5), 929-937.
 
-import numpy as np
 import argparse
 from utils import compute_predictability
-import sys
 import time
-import os
 from data_preprocess import DataProcessor
 
 if __name__ == "__main__":
