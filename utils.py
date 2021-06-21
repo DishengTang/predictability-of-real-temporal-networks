@@ -183,9 +183,6 @@ def compute_predictability(data, args):
         TTP_baseline = np.zeros(num_norm)
         for i in range(num_norm):
             print('{} of {} baseline realizations'.format(i + 1, num_norm))
-            # data_baseline = data_baseline.flatten()
-            # np.random.shuffle(data_baseline)
-            # data_baseline = data_baseline.reshape(mat_shape)
             data_baseline = data_baseline.flatten()[np.random.permutation(data_baseline.size)].reshape(mat_shape)
             TTP_baseline[i] = compute_TTP(data_baseline, use_conv)
         pred = 1 if TTP.max() == TTP_baseline.mean() == 1 else (TTP.max() - TTP_baseline.mean()) / (1 - TTP_baseline.mean())
