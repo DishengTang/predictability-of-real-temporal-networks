@@ -3,20 +3,19 @@ import numpy as np
 import networkx as nx
 
 class DataProcessor:
-    def __init__(self, path, data_col, is_directed=True, frequent_node=False,
-                th=10, connected_component=False, filter=True):
+    def __init__(self, args):
         super(DataProcessor, self).__init__()
         self.data = None
         self.M = None
         self.M_tilde = None
         self.G = None
-        self.path = path
-        self.data_col = data_col
-        self.is_directed = is_directed
-        self.frequent_node = frequent_node
-        self.th = th
-        self.connected_component = connected_component
-        self.filter = filter
+        self.path = args.DataPath
+        self.data_col = args.DataColumn
+        self.is_directed = args.Directed
+        self.frequent_node = args.FreNode
+        self.th = args.Threshold
+        self.connected_component = args.ConCom
+        self.filter = args.Filter
 
     def load_data(self):
         print('Loading data...')

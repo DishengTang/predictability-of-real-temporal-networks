@@ -171,7 +171,8 @@ def compute_TTP(data, use_conv):
         predictability = compute_square_predictability(data_copy, 1, 1)
     return predictability
 
-def compute_predictability(data, num_perm, normalize, num_norm, use_conv):
+def compute_predictability(data, args):
+    num_perm, normalize, num_norm, use_conv = args.NumPerm, args.Normalize, args.NumBase, args.UseConv
     TTP = np.zeros(num_perm)
     for i in range(num_norm):
         print('{} of {} TTP row permutations'.format(i + 1, num_norm))

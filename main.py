@@ -25,12 +25,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     start_time = time.time()
     pred_name = 'NTTP' if args.Normalize else 'TTP'
-    data_process = DataProcessor(args.DataPath, args.DataColumn, is_directed=args.Directed, frequent_node=args.FreNode,
-            th=args.Threshold, connected_component=args.ConCom, filter=args.Filter)
+    data_process = DataProcessor(args)
     data_process.load_data()
     data_process.construct_matrix()
     data_process.filter_links()
-    predictability = compute_predictability(data_process.M_tilde, args.NumPerm, args.Normalize, args.NumBase, args.UseConv)
+    predictability = compute_predictability(data_process.M_tilde, args)
     f = open(args.FileName, "w+")
     f.write(str(predictability))
     f.close()
