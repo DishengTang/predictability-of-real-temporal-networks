@@ -22,9 +22,11 @@ Interestingly, we find that, for most real temporal networks, despite the greate
 Dependencies:
 
 ```{bash}
-pandas==1.1.0
-numpy==1.20.0
-networkx==2.5.1
+pandas==1.2.4
+numpy==1.20.3
+sympy==1.6.2
+scipy==1.5.2
+networkx==2.5
 ```
 
 ### Dataset and Preprocessing
