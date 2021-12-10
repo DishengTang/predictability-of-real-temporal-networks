@@ -36,7 +36,7 @@ Download the sample datasets (e.g. [College-Forum](http://konect.cc/networks/ops
 ```raw_data/```.
 
 #### Preprocess the data
-We use a 2-dimensional matrix M to represent temporal networks. For large networks, we extract the subgraph of active nodes and then remove the inactive links in M to reduce computational cost. All calculations are performed base on the obtained matrix M_tilde. Check the Methods Section of the paper for details.
+We use a 2-dimensional matrix M to represent a temporal network. For large networks, we extract the subgraph of active nodes and then remove the inactive links in M to reduce computational cost. All calculations are performed based on the obtained matrix M_tilde. Check the Methods Section of the paper for details.
 
 ### Predictability calculation
 
